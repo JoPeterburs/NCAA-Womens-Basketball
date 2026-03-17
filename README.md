@@ -1,7 +1,6 @@
 # NCAA-Womens-Basketball
-Various NCAA Women's Basketball Projects
 
-### Project 1: Multivariate Analysis PCA
+## Project 1: Multivariate Analysis PCA
 
 #### For Stat 488: Multivariate Analysis
 
@@ -9,13 +8,13 @@ This project examines team-level performance in NCAA Division I women’s basket
 
 Additionally, the project investigates whether these dimensions differ between NCAA Tournament teams vs Non-Tournament teams using Hotelling’s T² test and MANOVA. This approach reduces highly correlated variables into interpretable components like offensive efficiency, defensive efficiency, and tempo, and accounts for covariance when testing group differences.
 
-### Project 2: Logistic Regression
+## Project 2: Logistic Regression
 
 #### For STAT 410: Categorical Analysis
 
 For this project, I conducted a logistic regression analysis to predict wins based on common basketball statistics. Used 2024-2025 NCAA Women's Basketball Dataset from Kaggle.
 
-### Project 3: Exploratory Data Analysis for NCAA Men's and Women's Basketball
+## Project 3: Exploratory Data Analysis for NCAA Men's and Women's Basketball
 
 #### For DSCI 101: Intro to Data Science
 
