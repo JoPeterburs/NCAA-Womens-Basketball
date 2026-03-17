@@ -1,0 +1,346 @@
+---
+title: "Multivariate Analysis Project 1: NCAA Women's Basketball Data"
+author: "Josie Peterburs"
+date: "3/13/26"
+format:
+ pdf:
+  include-in-header:
+      text: |
+        \setlength{\parindent}{2em}
+        \usepackage{indentfirst}
+  self-contained: true
+  embed-resources: true
+editor: visual
+execute:
+ echo: true
+ include: true
+ warning: false
+ message: false
+---
+
+## 1. Introduction
+
+This project examines team-level performance in NCAA Division I women’s basketball during the 2024–2025 season. Using team statistics such as scoring, assists, rebounds, steals, blocks, field goal percentage, free throws, fast break points, and turnovers, the goal is to identify underlying performance dimensions using Principal Component Analysis (PCA).
+
+  Additionally, the project investigates whether these dimensions differ between NCAA Tournament teams vs Non-Tournament teams using Hotelling’s T² test and MANOVA. This approach reduces highly correlated variables into interpretable components like offensive efficiency, defensive efficiency, and tempo, and accounts for covariance when testing group differences.
+  
+## 2. Data Preparation
+
+  The WeHoop dataset contains game-level statistics for NCAA women’s basketball teams during the 2024–2025 season. Because the analysis focuses on team-level performance characteristics rather than individual games, the data was aggregated to compute average statistics per team across the season. Variables included offensive and defensive performance metrics such as scoring, assists, rebounds, blocks, steals, field goal percentage, fast break points, free throws made, and turnovers.
+
+  Because the raw data includes games against teams from multiple NCAA divisions, the dataset was restricted to teams appearing in at least 25 games during the season. This filtering step basically isolates Division I programs and ensures comparability across teams. After filtering, the final dataset contained 342 teams, which is consistent with the approximate number of NCAA Division I women’s basketball programs.
+
+  Teams were then classified into Tournament vs. Non-Tournament groups based on participation in the 2025 NCAA Tournament. This grouping variable allows us to evaluate whether tournament teams demonstrate distinct multivariate profiles compared to teams that did not qualify.
+
+  The variables included in the analysis represent different types of basketball statistics and therefore exist on different scales (for example, field goal percentage ranges between 0 and 1, while scoring values are much larger). Because Principal Component Analysis (PCA) is sensitive to scale differences, all variables were standardized. This ensures that each variable contributes equally to the principal components and prevents variables with larger numerical ranges from dominating the results.
+
+## 3. Methods
+
+### 3.1 PCA Assumptions
+
+  The correlation matrix shows several moderate to strong correlations among the performance variables. For example, team score is strongly correlated with assists (0.74) and field goal percentage (0.78), suggesting that teams that move the ball effectively and shoot efficiently tend to score more points. Fast break points are also moderately correlated with both scoring and steals, reflecting the role of transition offense in scoring production. These relationships indicate that the variables share underlying structure, which is a key requirement for applying PCA.
+
+  Bartlett’s Test of Sphericity evaluates whether the correlation matrix differs significantly from an identity matrix. The test statistic was extremely large (χ² = 1754.86) with a p-value < 0.001, indicating that the variables are significantly correlated. This result supports the use of PCA because the variables contain sufficient shared variance to justify dimensionality reduction.
+
+  The Kaiser-Meyer-Olkin (KMO) measure of sampling adequacy evaluates whether the dataset is appropriate for factor-based techniques such as PCA. The overall KMO value of 0.66 indicates acceptable adequacy for PCA. While some individual variables such as steals and rebounds show slightly lower values, the overall statistic exceeds the commonly recommended threshold of 0.6, so the dataset is considered suitable for PCA.
+
+### 3.2 PCA Results
+
+  The PCA results show that the first principal component (PC1) explains approximately 42.4% of the total variance, while the second component explains 18.4%, and the third explains 12.1%. Together, the first three components explain approximately 72.9% of the total variation in team performance statistics. Because a relatively small number of components capture the majority of the variance, PCA effectively reduces the dimensionality of the dataset while preserving the most important information.
+
+  The scree plot also supports retaining approximately three components, as there is a noticeable “elbow” after the third component where additional components contribute substantially less variance.
+
+  The component loadings indicate how strongly each variable contributes to each principal component.
+
+  PC1 loads positively on team score, assists, field goal percentage, fast break points, and rebounds, while turnovers load negatively. This pattern suggests that PC1 represents *overall offensive efficiency* and team effectiveness. Teams with high PC1 scores tend to score more points, shoot efficiently, create assists, and limit turnovers. In practical basketball terms, this component captures the overall quality of a team’s offensive performance.
+
+  PC2 shows stronger positive loadings on steals, fast break points, free throws made, and turnovers. This component likely reflects *tempo and aggressive play style*, where teams generate steals and fast break opportunities but may also commit more turnovers. Teams scoring high on this component may emphasize defensive pressure and transition offense.
+
+  PC3 loads strongly on blocks and rebounds, suggesting that this dimension represents interior *defensive strength* and rebounding ability. Teams with higher PC3 values likely emphasize rim protection and physical play in the paint.
+
+  Together, these components capture meaningful basketball performance dimensions such as offensive efficiency, tempo/transition play, and defensive interior presence.
+
+### 3.3 Multivariate Normality
+
+  The Henze–Zirkler test for multivariate normality indicated p = 0.015, suggesting that the PCA component scores deviate somewhat from perfect multivariate normality. Univariate tests showed that PC2 and PC3 were approximately normally distributed, while PC1 showed some deviation.
+
+  However, the dataset contains 342 teams, and multivariate methods such as MANOVA are generally robust to moderate violations of normality when sample sizes are large. Therefore, the analysis can proceed with caution.
+
+### 3.4 Visualization
+
+  The PCA scatterplot of PC1 and PC2 shows the distribution of teams across the two primary performance dimensions. Tournament teams tend to appear more frequently in regions with higher PC1 values, suggesting stronger offensive efficiency relative to non-tournament teams. Non-tournament teams are more widely dispersed and often appear in lower PC1 regions. This visual pattern provides evidence that tournament teams may have stronger overall performance profiles.
+  
+```{r}
+#| echo: false
+#| fig-cap: "PCA Visualization"
+knitr::include_graphics("C:/Users/gigip/OneDrive/Pictures/Screenshots/Screenshot 2026-03-13 154445.png")
+```
+
+## 4. Results
+
+### 4.1 Hotelling’s T² Test 
+
+  Hotelling’s T² test was used to compare the multivariate mean vectors of tournament and non-tournament teams across the first three principal components. The test statistic was highly significant (T² = 187.44, p < 0.001), indicating that the two groups differ significantly in their multivariate performance profiles. This result suggests that teams qualifying for the NCAA tournament differ from non-tournament teams across the combined performance dimensions captured by the PCA.
+
+### 4.2 MANOVA 
+
+  To further examine group differences, a MANOVA was conducted using the first three principal components as dependent variables and tournament status as the grouping variable. Using Pillai’s Trace, which is more robust to assumption violations, the MANOVA results were statistically significant (Pillai’s Trace = 0.355, F = 62.11, p < 0.001). This indicates that tournament teams and non-tournament teams differ significantly in their multivariate performance characteristics when considering the principal components simultaneously.
+
+### 4.3 Follow-Up ANOVA 
+
+  Follow-up univariate ANOVAs were conducted to determine which principal components contributed most strongly to the group differences.
+
+  PC1 (Offensive Efficiency) showed a very large and statistically significant difference between groups (F = 161.34, p < 0.001). This indicates that tournament teams tend to have substantially higher offensive efficiency scores than non-tournament teams.
+
+  PC2 (Transition/Aggressive Play) also showed a significant difference (F = 10.50, p = 0.0013), though the effect was smaller. This suggests that tournament teams may also differ slightly in their style of play, particularly in areas related to steals, fast breaks, and free throw production.
+
+  PC3 (Interior Defense/Rebounding) was not statistically significant (p = 0.268), indicating that interior defensive strength and rebounding do not strongly differentiate tournament teams from non-tournament teams in this dataset.
+
+  Overall, the primary difference between tournament and non-tournament teams appears to be overall offensive efficiency, with secondary differences related to transition and aggressive play style.
+
+
+## 5. Conclusion
+
+  This analysis demonstrates how multivariate statistical techniques can be applied to sports analytics to uncover underlying performance dimensions. Using PCA, nine correlated basketball performance statistics were reduced to a small set of interpretable components representing offensive efficiency, tempo/transition play, and interior defense.
+
+  Multivariate tests showed that NCAA tournament teams differ significantly from non-tournament teams across these performance dimensions, with the largest differences appearing in the component associated with offensive efficiency. This suggests that teams that qualify for the NCAA tournament tend to excel in areas such as scoring, ball movement, shooting efficiency, and limiting turnovers.
+
+  Overall, the results illustrate how PCA and MANOVA can provide valuable insights into team performance structure and competitive success in women’s college basketball.
+
+\newpage
+
+## 6. Appendix
+
+### 1. Data Prep
+
+```{r, include=FALSE}
+library(wehoop)
+library(tidyverse)
+library(MVN)
+library(psych)
+```
+
+```{r}
+# load in data from 2024-2025 season
+wbb <- load_wbb_team_box(seasons = c(2025))
+head(wbb)
+```
+
+
+```{r}
+# fast_break_points stored as character but want it as numeric
+wbb$fast_break_points <- as.numeric(wbb$fast_break_points)
+
+# aggregate to team-level averages (wehoop is game-level)
+stats <- wbb %>%
+  select(team_id, team_short_display_name, team_score:turnover_points) %>%
+  select(-team_winner, -largest_lead, -technical_fouls, -total_technical_fouls)
+
+# used chat gpt for the across function because it was updated recently
+team_stats <- stats %>%
+  group_by(team_short_display_name, team_id) %>%
+  summarize(across(where(is.numeric), \(x) mean(x, na.rm = TRUE)), .groups = "drop") %>%
+  drop_na()
+
+# filter to just teams with 25+ games (basically restricting to just D1 teams)
+# wehoop ncaa data has D1, D2, and D3 data, but I only want D1 teams
+games_per_team <- wbb %>%
+  group_by(team_short_display_name) %>%
+  summarise(games = n(), .groups = "drop")
+
+d1_teams <- games_per_team %>%
+  filter(games >= 25) %>%
+  pull(team_short_display_name)
+
+team_stats <- team_stats %>%
+  filter(team_short_display_name %in% d1_teams)
+
+nrow(team_stats) # there are about 360 teams in D1 so this is better
+
+# tournament teams
+tourney_teams <- c(
+  "UCLA","Southern","Richmond","Georgia Tech","Ole Miss","Ball State",
+  "Baylor","Grand Canyon","Florida St","George Mason","LSU",
+  "San Diego St","Michigan St","Harvard","NC State","Vermont",
+
+  "South Carolina","Tennessee Tech","Indiana","Utah","Alabama",
+  "Green Bay","Maryland","Norfolk St","West Virginia","Columbia",
+  "North Carolina","Oregon St","Duke","Lehigh","Vanderbilt","Iowa State",
+
+  "Texas","Drexel","Michigan","Iowa","Louisville","Nebraska",
+  "Ohio State","Montana St","Kansas St","Fairfield","Creighton",
+  "UNLV","Notre Dame","SF Austin","TCU","Fair Dickinson",
+
+  "USC","UNC Greensboro","Mississippi St","Princeton","Oklahoma",
+  "S Dakota St","Kentucky","Liberty","Oklahoma St","MTSU",
+  "California","FGCU","UConn","Arkansas St","Iowa State",
+  "Murray St"
+)
+
+# test to make sure we match the team names correctly
+# setdiff(tourney_teams, wbb$team_short_display_name)
+
+team_stats$tournament <- ifelse(
+  team_stats$team_short_display_name %in% tourney_teams,
+  "Tournament",
+  "Non-Tournament"
+)
+
+team_stats$tournament <- factor(team_stats$tournament)
+```
+
+### 2. Standardize Data for PCA
+
+Variables need to be on comparable scales for PCA. Basketball statistics have different units, so we need to standardize them.
+
+```{r}
+# remove identifiers and grouping variable
+pca_vars <- team_stats %>%
+  select(
+    team_score,
+    assists,
+    blocks,
+    steals,
+    total_rebounds,
+    fast_break_points,
+    field_goal_pct,
+    free_throws_made,
+    total_turnovers
+  )
+
+# standardize variables
+pca_scaled <- scale(pca_vars)
+
+# check dimensions
+dim(pca_scaled)
+```
+
+### 3. Check Assumptions
+
+Bartlett's Test evaulates whether the correlation matrix differs from an identity matrix. If p < 0.05, then PCA is appropriate because the variables are correlated.
+
+KMO: if above ~0.6, the dataset is suitable for PCA
+
+```{r}
+# PCA assumptions
+
+# correlation matrix
+cor_matrix <- cor(pca_scaled)
+round(cor_matrix, 2)
+library(corrplot)
+corrplot(cor_matrix, method = "color")
+
+# Bartlett’s Test
+cortest.bartlett(cor_matrix, n = nrow(pca_scaled))
+
+# KMO measure
+KMO(cor_matrix)
+```
+
+### 4. Run PCA
+
+Scree plot helps determine how many components to keep (components before the 'elbow' usually the most variance).
+
+```{r}
+pca_model <- prcomp(pca_scaled, center = TRUE, scale. = TRUE)
+
+summary(pca_model)
+
+# scree plot
+plot(pca_model, type = "l", main = "Scree Plot")
+```
+
+### 5. PCA Loadings
+
+Loadings indicate how strongly each variable contributes to each component. 
+
+```{r}
+loadings <- pca_model$rotation
+round(loadings[,1:4], 3)
+```
+
+### 6. Component Scores
+
+```{r}
+scores <- as.data.frame(pca_model$x)
+
+team_pca <- bind_cols(
+  team_stats %>% select(team_short_display_name, tournament),
+  scores
+)
+
+head(team_pca)
+```
+
+Check assumpions of the PCA Components
+
+```{r}
+# multivariate normality
+mvn_result <- MVN::mvn(
+  data = team_pca %>% select(PC1, PC2, PC3)
+)
+
+mvn_result
+```
+
+
+### 7. Visualize PCA
+
+Plot showing how teams are distributed along the first two principal components. If tournament teams are in a particular region, then they share similar statistics.
+
+```{r}
+ggplot(team_pca, aes(PC1, PC2, color = tournament)) +
+  geom_point(size = 3) +
+  labs(
+    title = "PCA of Women's College Basketball Teams",
+    x = "Principal Component 1",
+    y = "Principal Component 2"
+  ) +
+  theme_minimal()
+```
+
+### 8. Hotelling's $T^2$ Test
+
+Two-group multivariate mean comparison. Run on PCA Scores because basketball stats are highly correlated. PCA captures most of the variation and are uncorrelated so this is good. 
+
+Question: Do tournament teams and non-tournament teams differ in their multivariate mean vector across the principal components. 
+
+```{r}
+library(Hotelling)
+
+# select PCA scores
+hotelling_data <- team_pca %>%
+  select(PC1, PC2, PC3)
+
+# split groups
+tourney <- hotelling_data[team_pca$tournament == "Tournament", ]
+non_tourney <- hotelling_data[team_pca$tournament == "Non-Tournament", ]
+
+# run test
+hotelling_result <- hotelling.test(tourney, non_tourney)
+
+hotelling_result
+```
+
+### 9. MANOVA
+
+Test whether tournament teams differ multivariately in their PCA scores. 
+
+```{r}
+manova_model <- manova(
+  cbind(PC1, PC2, PC3) ~ tournament,
+  data = team_pca
+) # maybe use Pillai's Trace bc more robust?
+
+summary(manova_model)
+```
+
+Our p-value is significant so tournament teams do have different multivariate profiles. (Their combined offensive and defensive characteristics differ from non-tournament teams).
+
+### 10. Follow-Up ANOVAS
+
+Show which components drive the group difference.
+
+```{r}
+summary.aov(manova_model)
+```
